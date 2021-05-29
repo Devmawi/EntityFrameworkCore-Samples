@@ -1,0 +1,188 @@
+﻿USE [master]
+GO
+
+/****** Object:  Database [RawSqlConsoleAppDb]    Script Date: 29.05.2021 14:00:27 ******/
+CREATE DATABASE [RawSqlConsoleAppDb]
+ CONTAINMENT = NONE
+ ON  PRIMARY 
+( NAME = N'RawSqlConsoleAppDb', FILENAME = N'D:\ProgramFiles\SQL Server\Data\MSSQL15.MSSQLSERVER\MSSQL\DATA\RawSqlConsoleAppDb.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
+ LOG ON 
+( NAME = N'RawSqlConsoleAppDb_log', FILENAME = N'D:\ProgramFiles\SQL Server\Data\MSSQL15.MSSQLSERVER\MSSQL\DATA\RawSqlConsoleAppDb_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
+ WITH CATALOG_COLLATION = DATABASE_DEFAULT
+GO
+
+IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
+begin
+EXEC [RawSqlConsoleAppDb].[dbo].[sp_fulltext_database] @action = 'enable'
+end
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET ANSI_NULL_DEFAULT OFF 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET ANSI_NULLS OFF 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET ANSI_PADDING OFF 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET ANSI_WARNINGS OFF 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET ARITHABORT OFF 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET AUTO_CLOSE OFF 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET AUTO_SHRINK OFF 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET AUTO_UPDATE_STATISTICS ON 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET CURSOR_CLOSE_ON_COMMIT OFF 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET CURSOR_DEFAULT  GLOBAL 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET CONCAT_NULL_YIELDS_NULL OFF 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET NUMERIC_ROUNDABORT OFF 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET QUOTED_IDENTIFIER OFF 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET RECURSIVE_TRIGGERS OFF 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET  ENABLE_BROKER 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET AUTO_UPDATE_STATISTICS_ASYNC OFF 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET DATE_CORRELATION_OPTIMIZATION OFF 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET TRUSTWORTHY OFF 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET ALLOW_SNAPSHOT_ISOLATION OFF 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET PARAMETERIZATION SIMPLE 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET READ_COMMITTED_SNAPSHOT ON 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET HONOR_BROKER_PRIORITY OFF 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET RECOVERY FULL 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET  MULTI_USER 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET PAGE_VERIFY CHECKSUM  
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET DB_CHAINING OFF 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET FILESTREAM( NON_TRANSACTED_ACCESS = OFF ) 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET TARGET_RECOVERY_TIME = 60 SECONDS 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET DELAYED_DURABILITY = DISABLED 
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET ACCELERATED_DATABASE_RECOVERY = OFF  
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET QUERY_STORE = OFF
+GO
+
+ALTER DATABASE [RawSqlConsoleAppDb] SET  READ_WRITE 
+GO
+
+USE [RawSqlConsoleAppDb]
+GO
+/****** Object:  Table [dbo].[Blog]    Script Date: 29.05.2021 14:00:01 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Blog](
+	[BlogId] [int] IDENTITY(1,1) NOT NULL,
+	[Url] [nvarchar](max) NULL,
+	[Rating] [int] NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+ CONSTRAINT [PK_Blog] PRIMARY KEY CLUSTERED 
+(
+	[BlogId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Post]    Script Date: 29.05.2021 14:00:01 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Post](
+	[PostId] [int] IDENTITY(1,1) NOT NULL,
+	[Title] [nvarchar](max) NULL,
+	[Content] [nvarchar](max) NULL,
+	[BlogId] [int] NULL,
+ CONSTRAINT [PK_Post] PRIMARY KEY CLUSTERED 
+(
+	[PostId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[Blog] ADD  DEFAULT ((3)) FOR [Rating]
+GO
+ALTER TABLE [dbo].[Blog] ADD  CONSTRAINT [DF_Blog_CreatedAt]  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[Post]  WITH CHECK ADD  CONSTRAINT [FK_Post_Blog_BlogId] FOREIGN KEY([BlogId])
+REFERENCES [dbo].[Blog] ([BlogId])
+GO
+ALTER TABLE [dbo].[Post] CHECK CONSTRAINT [FK_Post_Blog_BlogId]
+GO
+/****** Object:  StoredProcedure [dbo].[uspGetBlogs]    Script Date: 29.05.2021 14:00:01 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		M.Winter
+-- =============================================
+CREATE PROCEDURE [dbo].[uspGetBlogs]
+	-- Add the parameters for the stored procedure here
+	@createdAt datetime
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	SELECT  Post.PostId as Id
+		   ,Title
+		   ,Rating
+		   ,CreatedAt
+		   ,Blog.BlogId as BlogId
+	FROM Post
+		INNER JOIN Blog
+			ON Blog.BlogId = Post.BlogId
+	WHERE CreatedAt > @createdAt
+END
+GO
